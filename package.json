@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build && node scripts/generate-person-pages.mjs",
+    "build": "tsc -b && vite build && node scripts/generate-person-pages.mjs && node scripts/generate-og-image.mjs",
+    "generate:og": "node scripts/generate-og-image.mjs",
     "lint": "eslint .",
     "preview": "vite preview"
   },
