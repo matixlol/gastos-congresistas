@@ -1,6 +1,11 @@
+import { existsSync } from 'node:fs'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+
+if (existsSync('.env.public')) {
+  process.loadEnvFile('.env.public')
+}
 
 // https://vite.dev/config/
 export default defineConfig({

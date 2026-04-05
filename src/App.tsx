@@ -9,6 +9,7 @@ import {
   mergeDashboardPeople,
   readEmbeddedPersonData,
 } from './people';
+import { usePostHog } from '@posthog/react';
 
 function scrollToExplorer(behavior: ScrollBehavior = 'smooth') {
   const target = document.getElementById('explorador');
@@ -17,6 +18,7 @@ function scrollToExplorer(behavior: ScrollBehavior = 'smooth') {
 }
 
 export default function App() {
+  const posthog = usePostHog();
   const personSlug = useMemo(() => getPersonSlugFromPath(window.location.pathname), []);
   const [embeddedPerson] = useState<LegislatorWithSlug | null>(() => (
     personSlug ? readEmbeddedPersonData() : null
@@ -148,7 +150,7 @@ export default function App() {
 
             <div>
               <button
-                onClick={() => scrollToExplorer()}
+                onClick={() => { posthog?.capture('explorer_scrolled_to'); scrollToExplorer(); }}
                 className="inline-flex items-center gap-3 rounded-2xl bg-blue-600 px-6 py-4 text-sm font-bold uppercase tracking-wide text-white transition hover:bg-blue-700"
               >
                 Bajar al explorador

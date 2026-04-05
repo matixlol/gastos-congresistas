@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { ArrowLeft, Building2, CircleAlert, FileBarChart2, Home, Landmark, ShieldAlert, Users } from 'lucide-react';
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { SITUACION_BCRA } from './LegislatorSelector';
@@ -10,6 +11,7 @@ import {
   getPersonStats,
   getPowerLabel,
 } from './people';
+import { usePostHog } from '@posthog/react';
 
 interface PersonPageProps {
   person: LegislatorWithSlug;
@@ -40,10 +42,15 @@ function getSummary(person: LegislatorWithSlug) {
 }
 
 export default function PersonPage({ person }: PersonPageProps) {
+  const posthog = usePostHog();
   const stats = getPersonStats(person);
   const contextLine = getContextLine(person);
   const situation = stats.latestSituation != null ? SITUACION_BCRA[stats.latestSituation] : null;
   const latestRows = [...stats.monthlySeries].slice(-12).reverse();
+
+  useEffect(() => {
+    posthog?.capture('person_page_viewed', { nombre: person.nombre, poder: person.poder, slug: person.slug });
+  }, [posthog, person.nombre, person.poder, person.slug]);
 
   return (
     <div className="min-h-screen bg-gray-100 text-gray-900">
@@ -86,6 +93,7 @@ export default function PersonPage({ person }: PersonPageProps) {
             )}
             <a
               href={`/?funcionarios=${person.slug}`}
+              onClick={() => posthog?.capture('open_comparison_clicked', { nombre: person.nombre, slug: person.slug })}
               className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-blue-700"
             >
               Abrir comparativa
