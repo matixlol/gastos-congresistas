@@ -2,12 +2,12 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/gastos-congresistas/favicon.png" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>¿Cuánto deben? | Visualizador de deuda de funcionarios y legisladores</title>
     <meta
       name="description"
-      content="Visualizador público de deuda reportada por el BCRA para funcionarios y legisladores argentinos. Compará historiales y seguí la evolución mensual."
+      content="Explorador interactivo de deuda reportada por el BCRA para funcionarios y legisladores nacionales. Compará historiales por persona y seguí la evolución mensual con datos públicos."
     />
     <meta name="robots" content="index, follow" />
     <meta name="author" content="Sebastian Waisbrot" />
@@ -22,12 +22,9 @@
     <meta property="og:title" content="¿Cuánto deben? | Deuda de funcionarios y legisladores" />
     <meta
       property="og:description"
-      content="Visualizador público para explorar deuda reportada por el BCRA de funcionarios y legisladores argentinos."
+      content="Proyecto de visualización pública para explorar deuda reportada por el BCRA de funcionarios y legisladores nacionales, con comparación histórica entre personas."
     />
     <meta property="og:image" content="https://cuantodeben.visualizando.ar/og_image.png" />
-    <meta property="og:image:type" content="image/png" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="Vista previa del proyecto ¿Cuánto deben?" />
 
     <!-- Twitter -->
@@ -35,7 +32,7 @@
     <meta name="twitter:title" content="¿Cuánto deben? | Deuda de funcionarios y legisladores" />
     <meta
       name="twitter:description"
-      content="Visualizador público con datos del BCRA para comparar deuda histórica de funcionarios y legisladores."
+      content="Explorador interactivo con datos públicos del BCRA para comparar deuda histórica de funcionarios y legisladores argentinos."
     />
     <meta name="twitter:image" content="https://cuantodeben.visualizando.ar/og_image.png" />
     <meta name="twitter:image:alt" content="Vista previa del proyecto ¿Cuánto deben?" />
@@ -50,10 +47,10 @@
         "inLanguage": "es-AR"
       }
     </script>
-    <script type="module" crossorigin src="/gastos-congresistas/assets/index-_kUAKlTD.js"></script>
-    <link rel="stylesheet" crossorigin href="/gastos-congresistas/assets/index-BZ3U34NF.css">
+    <script type="module" crossorigin src="/assets/index-Cf98G0VW.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-DsXw4RrF.css">
   </head>
   <body>
-    <!--app-html--><div id="root" data-prerendered-app="true"><div class="min-h-screen bg-gray-100 text-gray-800"><main><section class="relative overflow-hidden border-b border-gray-200 bg-[radial-gradient(circle_at_20%_20%,rgba(59,130,246,0.12),transparent_40%),radial-gradient(circle_at_80%_30%,rgba(14,165,233,0.10),transparent_36%),linear-gradient(180deg,#f8fafc_0%,#eef2ff_45%,#f1f5f9_100%)]"><div class="mx-auto flex min-h-screen w-full max-w-6xl flex-col justify-center gap-8 px-6 py-14 md:py-20"><div class="max-w-3xl space-y-5"><p class="inline-block rounded-full border border-blue-200 bg-blue-50 px-4 py-1 text-xs font-semibold tracking-[0.18em] text-blue-700">CENTRAL DE DEUDORES + DECLARACIONES JURADAS</p><h1 class="text-4xl font-black uppercase leading-tight text-gray-900 md:text-6xl">¿CUANTO DEBEN?</h1><p class="max-w-2xl text-base leading-relaxed text-gray-700 md:text-lg">Este visualizador permite comparar la evolucion mensual de deuda reportada para figuras publicas argentinas, con ajustes en pesos constantes o en dolares.</p><ul class="space-y-2 text-sm leading-relaxed text-gray-700 md:text-base"><li>• Se incluyen funcionarios y legisladores nacionales.</li><li>• Los familiares surgen de las declaraciones juradas patrimoniales.</li><li>• El historial de deuda proviene de la base Central de Deudores del BCRA.</li></ul><div class="grid grid-cols-2 gap-2 pt-1"><div class="rounded-lg border border-blue-200 bg-white/70 px-2.5 py-2"><p class="text-[10px] font-semibold uppercase leading-tight tracking-wide text-blue-700">Funcionarios registrados</p><p class="mt-0.5 text-lg font-black leading-tight text-gray-900 md:text-xl">…</p></div><div class="rounded-lg border border-blue-200 bg-white/70 px-2.5 py-2"><p class="text-[10px] font-semibold uppercase leading-tight tracking-wide text-blue-700">Ultimo mes disponible</p><p class="mt-0.5 text-sm font-black leading-tight text-gray-900 md:text-base">…</p></div></div></div><div class="flex flex-wrap gap-3"><button class="inline-flex items-center gap-3 rounded-2xl bg-blue-600 px-6 py-4 text-sm font-bold uppercase tracking-wide text-white transition hover:bg-blue-700">Bajar al explorador<span aria-hidden="true">↓</span></button><a href="/gastos-congresistas/personas/" class="inline-flex items-center gap-3 rounded-2xl border border-blue-200 bg-white px-6 py-4 text-sm font-bold uppercase tracking-wide text-blue-700 transition hover:border-blue-300 hover:bg-blue-50">Ver todas las fichas</a></div></div></section><section id="explorador" class="h-screen w-full border-b border-gray-200 bg-gray-100"><div class="flex h-full items-center justify-center"><p class="text-gray-500">Cargando datos…</p></div></section></main><footer class="border-t border-gray-200 bg-white"><div class="mx-auto grid w-full max-w-6xl gap-6 px-6 py-10 text-sm text-gray-700 md:grid-cols-2"><div><h2 class="mb-2 text-base font-bold text-gray-900">About</h2><p class="leading-relaxed">Proyecto civico para facilitar la lectura publica de datos financieros de funcionarios y legisladores, con foco en transparencia y comparacion historica.</p></div><div class="md:text-right"><h2 class="mb-2 text-base font-bold text-gray-900">Repositorio</h2><a href="https://github.com/seppo0010/gastos-congresistas" target="_blank" rel="noreferrer" class="font-semibold text-blue-700 underline-offset-4 transition hover:text-blue-800 hover:underline">github.com/seppo0010/gastos-congresistas</a><div class="mt-3 space-y-1 text-xs text-gray-600"><p>Autor: Sebastian Waisbrot (<a href="https://github.com/seppo0010" target="_blank" rel="noreferrer" class="text-blue-700 underline-offset-4 transition hover:text-blue-800 hover:underline">seppo0010</a>)</p><p>Andres Snitcofsky (diseno, viz y ux):<!-- --> <a href="https://visualizando.ar" target="_blank" rel="noreferrer" class="text-blue-700 underline-offset-4 transition hover:text-blue-800 hover:underline">visualizando.ar</a></p></div><p class="mt-3 text-xs text-gray-500">Hecho para exploracion publica y periodismo de datos.</p></div></div></footer></div></div><!--/app-html-->
+    <div id="root"></div>
   </body>
 </html>
