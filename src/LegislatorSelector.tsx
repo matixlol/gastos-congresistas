@@ -31,6 +31,8 @@ const getDebtStats = (l: Legislator) => {
   };
 };
 
+const formatCuit = (cuit: string) => cuit.replace(/^(\d{2})(\d{8})(\d)$/, '$1-$2-$3');
+
 export default ({ legisladores, onSelect, selectedIds = [], selectedColors = {} }: { legisladores: Legislator[], onSelect: (l: Legislator) => void, selectedIds?: string[], selectedColors?: Record<string, string> }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
@@ -98,8 +100,13 @@ export default ({ legisladores, onSelect, selectedIds = [], selectedColors = {} 
     return legisladores
       .filter(l => {
         const normalize = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-        const searchMatch = debouncedSearchTerm === "" || normalize(l.nombre).includes(normalize(debouncedSearchTerm));
-
+        const normalizedSearch = normalize(debouncedSearchTerm);
+        const searchDigits = debouncedSearchTerm.replace(/\D/g, '');
+        const dni = ((l as Legislator & { dni?: string }).dni || '').replace(/\D/g, '');
+        const searchMatch = debouncedSearchTerm === ""
+          || normalize(l.nombre).includes(normalizedSearch)
+          || (searchDigits !== '' && l.cuit.includes(searchDigits))
+          || (searchDigits !== '' && dni.includes(searchDigits));
 
         const isLegislador = l.poder === 'legislativo';
         const isJudicial = l.poder === 'judicial';
@@ -147,7 +154,7 @@ export default ({ legisladores, onSelect, selectedIds = [], selectedColors = {} 
         <p className="text-xs text-gray-500 mt-0.5 leading-snug hidden md:block">Deuda en el BCRA · hacé click para ver el historial</p>
         <input
           className="w-full mt-2 p-2 border rounded text-sm"
-          placeholder="Buscar..."
+          placeholder="Buscar nombre, CUIT o DNI..."
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
         />
@@ -329,38 +336,41 @@ export default ({ legisladores, onSelect, selectedIds = [], selectedColors = {} 
                 {isSelected && <X size={12} className="text-white" />}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex justify-between items-center w-full">
-                  <div className="font-semibold text-sm mr-2 flex-1 flex items-center gap-1 min-w-0">
-                    <span className="truncate">{l.nombre}</span>
-                    {l.es_candidato && (
-                      <span title="Candidato: aún no ocupa el cargo" className="shrink-0 text-[9px] font-bold px-1 py-0.5 rounded leading-none bg-amber-100 text-amber-700 border border-amber-300">
-                        Candidato
-                      </span>
-                    )}
-                    {l.hipoteca_bcra.tiene && (
-                      <div title="Tiene garantía preferida (hipoteca/prenda) registrada en el BCRA." className="shrink-0 flex">
-                        <Home size={14} className="text-green-600" />
-                      </div>
-                    )}
-                    {l.cambios_nivel && (
-                      <div title="Tiene un cambio de nivel en su deuda. Este indicador es una heurística inferida a partir de los montos." className="shrink-0 flex">
-                        <AlertCircle size={14} className="text-orange-500" />
-                      </div>
-                    )}
-                    {l.familiares && l.familiares.length > 0 && (
-                      <div title="Tiene datos de familiares en el BCRA." className="shrink-0 flex">
-                        <Users size={14} className="text-blue-400" />
-                      </div>
-                    )}
-                    {l.situacion_bcra !== undefined && l.situacion_bcra !== 1 && (
-                      <span
-                        title={`Situación BCRA: ${SITUACION_BCRA[l.situacion_bcra]?.label ?? l.situacion_bcra}`}
-                        className="shrink-0 text-[9px] font-bold px-1 py-0.5 rounded leading-none"
-                        style={{ backgroundColor: SITUACION_BCRA[l.situacion_bcra]?.color ?? '#9ca3af', color: '#fff' }}
-                      >
-                        {l.situacion_bcra}
-                      </span>
-                    )}
+                <div className="flex justify-between items-center w-full gap-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-sm mr-2 flex-1 flex items-center gap-1 min-w-0">
+                      <span className="truncate">{l.nombre}</span>
+                      {l.es_candidato && (
+                        <span title="Candidato: aún no ocupa el cargo" className="shrink-0 text-[9px] font-bold px-1 py-0.5 rounded leading-none bg-amber-100 text-amber-700 border border-amber-300">
+                          Candidato
+                        </span>
+                      )}
+                      {l.hipoteca_bcra.tiene && (
+                        <div title="Tiene garantía preferida (hipoteca/prenda) registrada en el BCRA." className="shrink-0 flex">
+                          <Home size={14} className="text-green-600" />
+                        </div>
+                      )}
+                      {l.cambios_nivel && (
+                        <div title="Tiene un cambio de nivel en su deuda. Este indicador es una heurística inferida a partir de los montos." className="shrink-0 flex">
+                          <AlertCircle size={14} className="text-orange-500" />
+                        </div>
+                      )}
+                      {l.familiares && l.familiares.length > 0 && (
+                        <div title="Tiene datos de familiares en el BCRA." className="shrink-0 flex">
+                          <Users size={14} className="text-blue-400" />
+                        </div>
+                      )}
+                      {l.situacion_bcra !== undefined && l.situacion_bcra !== 1 && (
+                        <span
+                          title={`Situación BCRA: ${SITUACION_BCRA[l.situacion_bcra]?.label ?? l.situacion_bcra}`}
+                          className="shrink-0 text-[9px] font-bold px-1 py-0.5 rounded leading-none"
+                          style={{ backgroundColor: SITUACION_BCRA[l.situacion_bcra]?.color ?? '#9ca3af', color: '#fff' }}
+                        >
+                          {l.situacion_bcra}
+                        </span>
+                      )}
+                    </div>
+                    <div className="mt-0.5 text-[11px] text-gray-500 font-mono">{formatCuit(l.cuit)}</div>
                   </div>
                   {max > 0 && (
                     <span className="text-xs text-gray-500 whitespace-nowrap bg-gray-100 px-1.5 py-0.5 rounded">
