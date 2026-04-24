@@ -85,8 +85,8 @@ export function mergeDashboardPeople(
 
 export function getPersonSlugFromPath(pathname: string) {
   const normalized = pathname.replace(/\/+$/, '') || '/';
-  const match = normalized.match(/^\/persona\/([^/]+)$/);
-  return match?.[1] ?? null;
+  const match = normalized.match(/^\/(?:gastos-congresistas\/)?persona\/([^/]+)$/);
+  return match ? decodeURIComponent(match[1]) : null;
 }
 
 export function readEmbeddedPersonData() {
@@ -209,5 +209,5 @@ export function getPowerLabel(legislator: Legislator) {
 }
 
 export function getPersonRoute(slug: string) {
-  return `/persona/${slug}/`;
+  return `/gastos-congresistas/persona/${slug}/`;
 }
