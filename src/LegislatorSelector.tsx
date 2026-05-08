@@ -35,7 +35,7 @@ function calcularCuit(dni: string, genero: 'M' | 'F'): string {
   // Extremely unlikely fallback
   return `${prefixes[0]}-${dniPadded}-0`;
 }
-import { Home, AlertCircle, X, Users, ShieldAlert, ArrowDownAZ, ArrowUpAZ, TrendingUp, BarChart2 } from 'lucide-react';
+import { Home, AlertCircle, X, Users, ShieldAlert, ArrowDownAZ, ArrowUpAZ, TrendingUp, BarChart2, Zap } from 'lucide-react';
 
 import type { Legislator } from './types';
 import { COLORS } from './Colors';
@@ -62,9 +62,17 @@ const getDebtStats = (l: Legislator) => {
     months.add(h.fecha);
   }
 
+  const sortedMonths = [...months].sort();
+  const lastMonth = sortedMonths[sortedMonths.length - 1];
+  const prevMonth = sortedMonths[sortedMonths.length - 2];
+  const lastJump = lastMonth != null
+    ? (monthly[lastMonth] ?? 0) - (prevMonth != null ? (monthly[prevMonth] ?? 0) : 0)
+    : 0;
+
   return {
     max: Math.max(0, ...Object.values(monthly)),
-    avg: months.size > 0 ? total / months.size : 0
+    avg: months.size > 0 ? total / months.size : 0,
+    lastJump,
   };
 };
 
@@ -243,7 +251,7 @@ export default function LegislatorSelector({
   }, [legisladores]);
 
   const debtStats = useMemo(() => {
-    const stats = new Map<string, { max: number; avg: number }>();
+    const stats = new Map<string, { max: number; avg: number; lastJump: number }>();
     legisladores.forEach(l => {
       stats.set(l.cuit, getDebtStats(l));
     });
@@ -299,6 +307,7 @@ export default function LegislatorSelector({
 
         if (sortOrder === 'max_deuda_desc') return statsB.max - statsA.max;
         if (sortOrder === 'promedio_deuda_desc') return statsB.avg - statsA.avg;
+        if (sortOrder === 'salto_desc') return statsB.lastJump - statsA.lastJump;
 
         return 0;
       });
@@ -332,11 +341,12 @@ export default function LegislatorSelector({
                 { value: 'nombre_desc', icon: <ArrowUpAZ size={14} />, label: 'Z-A' },
                 { value: 'max_deuda_desc', icon: <TrendingUp size={14} />, label: 'Máx' },
                 { value: 'promedio_deuda_desc', icon: <BarChart2 size={14} />, label: 'Prom' },
+                { value: 'salto_desc', icon: <Zap size={14} />, label: 'Salto' },
               ].map(opt => (
                 <button
                   key={opt.value}
                   onClick={() => { posthog?.capture('sort_order_changed', { sort_order: opt.value }); setSortOrder(opt.value); }}
-                  title={{ nombre_asc: 'Nombre A-Z', nombre_desc: 'Nombre Z-A', max_deuda_desc: 'Mayor Deuda Histórica', promedio_deuda_desc: 'Promedio Deuda Histórica' }[opt.value]}
+                  title={{ nombre_asc: 'Nombre A-Z', nombre_desc: 'Nombre Z-A', max_deuda_desc: 'Mayor Deuda Histórica', promedio_deuda_desc: 'Promedio Deuda Histórica', salto_desc: 'Mayor Salto en el Último Período' }[opt.value]}
                   className={`flex-1 flex items-center justify-center gap-1 py-1 px-1 rounded border text-xs ${sortOrder === opt.value ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'}`}
                 >
                   {opt.icon}
