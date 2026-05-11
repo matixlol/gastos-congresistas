@@ -42,6 +42,62 @@ function sha1Hex(text: string): string {
   return hex8(H0) + hex8(H1) + hex8(H2) + hex8(H3) + hex8(H4);
 }
 
+type BcraBucketEntry = {
+  status: number;
+  results?: {
+    denominacion?: string;
+    periodos?: { periodo: string; entidades: { entidad: string; situacion: number; monto: number }[] }[];
+  };
+};
+
+const BCRA_PERIOD = import.meta.env.VITE_BCRA_PERIOD || '202603';
+type BcraManifest = Record<string, Record<string, [number, number]>>;
+
+let bcraManifestCache: Promise<BcraManifest> | null = null;
+const bcraBucketCache = new Map<string, Promise<Record<string, BcraBucketEntry>>>();
+
+async function readGzippedJson<T>(response: Response): Promise<T> {
+  const ds = new DecompressionStream('gzip');
+  const decompressed = response.body!.pipeThrough(ds);
+  const text = await new Response(decompressed).text();
+  return JSON.parse(text) as T;
+}
+
+async function loadBcraManifest(): Promise<BcraManifest> {
+  if (bcraManifestCache) return bcraManifestCache;
+
+  bcraManifestCache = (async () => {
+    const response = await fetch(`${import.meta.env.VITE_BCRA_BASE_URL}/${BCRA_PERIOD}/manifest.json.gz`);
+    if (!response.ok) throw new Error('BCRA manifest not found');
+    return readGzippedJson<BcraManifest>(response);
+  })();
+
+  return bcraManifestCache;
+}
+
+async function loadBcraBucket(prefix: string, sub: string): Promise<Record<string, BcraBucketEntry>> {
+  const cacheKey = `${BCRA_PERIOD}/${prefix}/${sub}`;
+  const cached = bcraBucketCache.get(cacheKey);
+  if (cached) return cached;
+
+  const promise = (async () => {
+    const manifest = await loadBcraManifest();
+    const range = manifest[prefix]?.[sub];
+    if (!range) throw new Error('BCRA bucket not found');
+
+    const [offset, size] = range;
+    const response = await fetch(`${import.meta.env.VITE_BCRA_BASE_URL}/${BCRA_PERIOD}/${prefix}.pack`, {
+      headers: { Range: `bytes=${offset}-${offset + size - 1}` },
+    });
+    if (!response.ok) throw new Error('BCRA bucket not found');
+    if (response.status !== 206) throw new Error('BCRA storage does not support range requests');
+    return readGzippedJson<Record<string, BcraBucketEntry>>(response);
+  })();
+
+  bcraBucketCache.set(cacheKey, promise);
+  return promise;
+}
+
 interface DashboardProps {
   dbData: DashboardData;
   politicosData: DashboardData;
@@ -177,18 +233,16 @@ export default function Dashboard({ dbData, politicosData, judicialData }: Dashb
     addedCuits.current.add(cuit);
 
     const hash = sha1Hex(cuit);
-    const dir = hash.slice(0, 2);
-    const file = hash.slice(2, 4);
-    const fetchUrl = `${import.meta.env.VITE_BCRA_BASE_URL}/202601/${dir}/${file}.json.gz`;
-    const response = await fetch(fetchUrl);
-    if (!response.ok) {
+    const prefix = hash.slice(0, 2);
+    const sub = hash.slice(2, 4);
+    let bucket: Record<string, BcraBucketEntry>;
+    try {
+      bucket = await loadBcraBucket(prefix, sub);
+    } catch {
       addedCuits.current.delete(cuit);
       throw new Error(`No se encontraron datos para el CUIT ${cuit}`);
     }
-    const ds = new DecompressionStream('gzip');
-    const decompressed = response.body!.pipeThrough(ds);
-    const text = await new Response(decompressed).text();
-    const bucket = JSON.parse(text);
+
     const entry = bucket[cuit];
     if (!entry || entry.status !== 200) {
       addedCuits.current.delete(cuit);
