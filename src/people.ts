@@ -77,7 +77,7 @@ export function mergeDashboardPeople(
       .filter((p) => !legCuits.has(p.cuit))
       .map((p) => ({ ...p, poder: 'ejecutivo' as const })),
     ...rawJudicial
-      .filter((j) => !legCuits.has(j.cuit) && !execCuits.has(j.cuit))
+      .filter((j) => j.nombre.trim() !== '' && !legCuits.has(j.cuit) && !execCuits.has(j.cuit))
       .map((j) => ({ ...j, poder: 'judicial' as const })),
   ];
 
